@@ -10,25 +10,6 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-echo "=== 检测 Debian 版本 ==="
-VERSION_CODENAME=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2)
-if [ -z "$VERSION_CODENAME" ]; then
-    echo "无法检测 Debian 版本代号，退出"
-    exit 1
-fi
-echo "检测到版本：$VERSION_CODENAME"
-
-echo "=== 检测 IP 类型 ==="
-HAS_IPV4=false
-HAS_IPV6=false
-
-if ip -4 addr show | grep -q "inet "; then
-    HAS_IPV4=true
-fi
-if ip -6 addr show | grep "inet6 " | grep -vq "fe80"; then
-    HAS_IPV6=true
-fi
-
 echo "=== 设置 DNS ==="
 
 # 解锁 resolv.conf（如果已锁）
@@ -69,6 +50,25 @@ fi
 
 # 改完再锁定
 chattr +i /etc/resolv.conf
+
+echo "=== 检测 Debian 版本 ==="
+VERSION_CODENAME=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2)
+if [ -z "$VERSION_CODENAME" ]; then
+    echo "无法检测 Debian 版本代号，退出"
+    exit 1
+fi
+echo "检测到版本：$VERSION_CODENAME"
+
+echo "=== 检测 IP 类型 ==="
+HAS_IPV4=false
+HAS_IPV6=false
+
+if ip -4 addr show | grep -q "inet "; then
+    HAS_IPV4=true
+fi
+if ip -6 addr show | grep "inet6 " | grep -vq "fe80"; then
+    HAS_IPV6=true
+fi
 
 echo "=== 恢复官方软件源 ==="
 cat >/etc/apt/sources.list <<EOF

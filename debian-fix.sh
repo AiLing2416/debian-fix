@@ -18,27 +18,6 @@ if [ -z "$VERSION_CODENAME" ]; then
 fi
 echo "检测到版本：$VERSION_CODENAME"
 
-echo "=== 恢复官方软件源 ==="
-cat >/etc/apt/sources.list <<EOF
-deb http://deb.debian.org/debian $VERSION_CODENAME main contrib non-free non-free-firmware
-deb http://deb.debian.org/debian $VERSION_CODENAME-updates main contrib non-free non-free-firmware
-deb http://security.debian.org/debian-security $VERSION_CODENAME-security main contrib non-free non-free-firmware
-EOF
-
-echo "=== 更新 apt 并启用并行下载 ==="
-apt update
-mkdir -p /etc/apt/apt.conf.d
-echo 'Acquire::Queue-Mode "host";' > /etc/apt/apt.conf.d/99parallel
-echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/99parallel
-
-echo "=== 安装常用工具 ==="
-apt install -y bash-completion curl wget vim htop dnsutils ca-certificates apt-transport-https lsb-release iproute2
-
-echo "=== 启用 bash 补全 ==="
-if ! grep -q "bash_completion" ~/.bashrc; then
-    echo "[ -f /etc/bash_completion ] && . /etc/bash_completion" >> ~/.bashrc
-fi
-
 echo "=== 检测 IP 类型 ==="
 HAS_IPV4=false
 HAS_IPV6=false
@@ -90,6 +69,27 @@ fi
 
 # 改完再锁定
 chattr +i /etc/resolv.conf
+
+echo "=== 恢复官方软件源 ==="
+cat >/etc/apt/sources.list <<EOF
+deb http://deb.debian.org/debian $VERSION_CODENAME main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian $VERSION_CODENAME-updates main contrib non-free non-free-firmware
+deb http://security.debian.org/debian-security $VERSION_CODENAME-security main contrib non-free non-free-firmware
+EOF
+
+echo "=== 更新 apt 并启用并行下载 ==="
+apt update
+mkdir -p /etc/apt/apt.conf.d
+echo 'Acquire::Queue-Mode "host";' > /etc/apt/apt.conf.d/99parallel
+echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/99parallel
+
+echo "=== 安装常用工具 ==="
+apt install -y bash-completion curl wget vim htop dnsutils ca-certificates apt-transport-https lsb-release iproute2
+
+echo "=== 启用 bash 补全 ==="
+if ! grep -q "bash_completion" ~/.bashrc; then
+    echo "[ -f /etc/bash_completion ] && . /etc/bash_completion" >> ~/.bashrc
+fi
 
 echo "=== 修复语言环境为 en_US.UTF-8 ==="
 apt install -y locales
